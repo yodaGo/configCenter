@@ -1,4 +1,4 @@
-package golang_config_center_connector
+package main
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-type configCenter struct {
+type config struct {
 	Broker     string
 	HttpBroker string
 	clientId   string
@@ -25,16 +25,16 @@ type configCenter struct {
 
 var globThisMap sync.Map
 
-func NewConfigCenter() *configCenter {
+func NewConfig() *config {
 	cId := time.Now().Format("20060102150405")
-	conn := &configCenter{clientId: cId}
+	conn := &config{clientId: cId}
 	globThisMap.Store(cId, conn)
 	return conn
 }
 
-func NewConfigCenterWithBroker(httpbroker string, tcpbroker string) *configCenter {
+func NewConfigWithBroker(httpbroker string, tcpbroker string) *config {
 	cId := time.Now().Format("20060102150405")
-	conn := &configCenter{clientId: cId, Broker: tcpbroker, HttpBroker: httpbroker}
+	conn := &config{clientId: cId, Broker: tcpbroker, HttpBroker: httpbroker}
 	globThisMap.Store(cId, conn)
 	return conn
 }
@@ -47,11 +47,11 @@ func onSubscribeMessage(client MQTT.Client, message MQTT.Message) {
 		fmt.Println("not found clientId:", clientId)
 		return
 	}
-	subClient := this.(*configCenter)
+	subClient := this.(*config)
 	subClient.callback(message.Topic(), message.Payload())
 }
 
-func (cc *configCenter) SubscribeAndQuery(topic string, callback func(topic string, response interface{})) error {
+func (cc *config) SubscribeAndQuery(topic string, callback func(topic string, response interface{})) error {
 	cc.topic = topic
 	cc.callback = callback
 	err := cc.initTopic()
@@ -71,7 +71,7 @@ func (cc *configCenter) SubscribeAndQuery(topic string, callback func(topic stri
 	return nil
 }
 
-func (cc *configCenter) initTopic() error {
+func (cc *config) initTopic() error {
 	if len(cc.HttpBroker) != 0 {
 		if len(cc.topic) == 0 {
 			return errors.New("the topic is empty")
@@ -99,7 +99,7 @@ func (cc *configCenter) initTopic() error {
 	return errors.New("no httpBroker")
 }
 
-func (cc *configCenter) connect() error {
+func (cc *config) connect() error {
 
 	options := MQTT.NewClientOptions()
 	options.SetAutoReconnect(true)
