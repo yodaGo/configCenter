@@ -32,11 +32,15 @@ func NewConfig() *Config {
 	return conn
 }
 
-func NewConfigWithBroker(httpbroker string, tcpbroker string) *Config {
+func NewConfigWithBroker(httpbroker string, tcpbroker string) (*Config, error) {
 	cId := time.Now().Format("20060102150405")
 	conn := &Config{clientId: cId, Broker: tcpbroker, HttpBroker: httpbroker}
 	globThisMap.Store(cId, conn)
-	return conn
+	err := conn.connect()
+	if err != nil {
+		return nil, err
+	}
+	return conn, nil
 }
 
 func onSubscribeMessage(client MQTT.Client, message MQTT.Message) {
