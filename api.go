@@ -19,7 +19,7 @@ type config struct {
 	topic      string
 	mqttClient MQTT.Client
 	locker     *sync.Mutex
-	Message    []byte
+	Message    interface{}
 	callback   func(topic string, response interface{})
 }
 
