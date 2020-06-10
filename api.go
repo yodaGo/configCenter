@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-type config struct {
+type Config struct {
 	Broker     string
 	HttpBroker string
 	clientId   string
@@ -25,16 +25,16 @@ type config struct {
 
 var globThisMap sync.Map
 
-func NewConfig() *config {
+func NewConfig() *Config {
 	cId := time.Now().Format("20060102150405")
-	conn := &config{clientId: cId}
+	conn := &Config{clientId: cId}
 	globThisMap.Store(cId, conn)
 	return conn
 }
 
-func NewConfigWithBroker(httpbroker string, tcpbroker string) *config {
+func NewConfigWithBroker(httpbroker string, tcpbroker string) *Config {
 	cId := time.Now().Format("20060102150405")
-	conn := &config{clientId: cId, Broker: tcpbroker, HttpBroker: httpbroker}
+	conn := &Config{clientId: cId, Broker: tcpbroker, HttpBroker: httpbroker}
 	globThisMap.Store(cId, conn)
 	return conn
 }
@@ -47,11 +47,11 @@ func onSubscribeMessage(client MQTT.Client, message MQTT.Message) {
 		fmt.Println("not found clientId:", clientId)
 		return
 	}
-	subClient := this.(*config)
+	subClient := this.(*Config)
 	subClient.callback(message.Topic(), message.Payload())
 }
 
-func (cc *config) SubscribeAndQuery(topic string, callback func(topic string, response interface{})) error {
+func (cc *Config) SubscribeAndQuery(topic string, callback func(topic string, response interface{})) error {
 	cc.topic = topic
 	cc.callback = callback
 	err := cc.initTopic()
@@ -71,7 +71,7 @@ func (cc *config) SubscribeAndQuery(topic string, callback func(topic string, re
 	return nil
 }
 
-func (cc *config) initTopic() error {
+func (cc *Config) initTopic() error {
 	if len(cc.HttpBroker) != 0 {
 		if len(cc.topic) == 0 {
 			return errors.New("the topic is empty")
@@ -99,7 +99,7 @@ func (cc *config) initTopic() error {
 	return errors.New("no httpBroker")
 }
 
-func (cc *config) connect() error {
+func (cc *Config) connect() error {
 
 	options := MQTT.NewClientOptions()
 	options.SetAutoReconnect(true)
