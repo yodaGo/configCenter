@@ -1,4 +1,4 @@
-package golang_config_center_connector
+package configCenter
 
 type ConfigCenter interface {
 	SubscribeAndQuery(topic string, callback func(topic string, response interface{})) error
