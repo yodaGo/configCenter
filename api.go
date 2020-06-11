@@ -24,6 +24,7 @@ type Config struct {
 
 var globThisMap sync.Map
 
+//
 func NewConfigCenter() *Config {
 	cId := time.Now().Format("20060102150405")
 	conn := &Config{clientId: cId}
